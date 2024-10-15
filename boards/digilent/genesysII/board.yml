@@ -1,0 +1,7 @@
+# Copyright 2024 CISPA Helmholtz Center for Information Security gGmbH
+# SPDX-License-Identifier: Apache-2.0
+board:
+  name: genesysII
+  vendor: digilent
+  socs:
+    - name: cv64a6
