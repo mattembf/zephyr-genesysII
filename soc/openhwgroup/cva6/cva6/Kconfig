@@ -26,17 +26,17 @@ config SOC_CV64A6
 	select CPU_HAS_DCACHE
 	select CPU_HAS_ICACHE
 
-config SOC_SERIES_CV64A6_PROVIDE_NONSTANDARD_CACHE_OPTIONS
+config SOC_SERIES_CVA6_PROVIDE_NONSTANDARD_CACHE_OPTIONS
 	bool "Include non-standard cache management operations (currently global cache disable)"
 	depends on SOC_CV64A6
 	default n
 
-config SOC_SERIES_CV64A6_PROVIDE_TEST_POWEROFF
+config SOC_SERIES_CVA6_PROVIDE_TEST_POWEROFF
 	bool "Include methods for terminating a test in the CV64a6 test harness (hardware simulation)"
 	depends on SOC_CV64A6
 	default n
 
-config SOC_SERIES_CV64A6_PROVIDE_FPGA_POWEROFF
+config SOC_SERIES_CVA6_PROVIDE_FPGA_POWEROFF
 	bool "Include methods for terminating a test on the FPGA"
 	depends on SOC_CV64A6
 	default n
