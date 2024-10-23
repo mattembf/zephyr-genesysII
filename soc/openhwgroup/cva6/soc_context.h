@@ -1,0 +1,14 @@
+#ifndef SOC_SERIES_CVA6_SOC_CONTEXT_H
+#define SOC_SERIES_CVA6_SOC_CONTEXT_H
+
+#ifdef CONFIG_RISCV_SOC_CONTEXT_SAVE
+
+#define SOC_ESF_MEMBERS    \
+    uint64_t cyc_cnt_1
+
+#define SOC_ESF_INIT        \
+    0
+
+#endif /* CONFIG_RISCV_SOC_CONTEXT_SAVE */
+
+#endif /* SOC_SERIES_CVA6_SOC_CONTEXT_H */
