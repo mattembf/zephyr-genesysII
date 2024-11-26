@@ -25,6 +25,7 @@ config SOC_CV64A6
 	select HAS_POWEROFF
 	select CPU_HAS_DCACHE
 	select CPU_HAS_ICACHE
+	select RISCV_SOC_HAS_ISR_STACKING
 
 config SOC_SERIES_CVA6_PROVIDE_NONSTANDARD_CACHE_OPTIONS
 	bool "Include non-standard cache management operations (currently global cache disable)"
