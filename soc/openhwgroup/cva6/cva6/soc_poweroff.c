@@ -21,7 +21,8 @@
  * this is accomplished using a linker script
  */
 
-volatile int32_t tohost;
+volatile uint64_t tohost;
+volatile uint64_t fromhost;
 
 static int32_t cv64a6_test_status;
 
@@ -34,6 +35,7 @@ void z_cv64a6_finish_test(const int32_t status)
 
 void z_sys_poweroff(void)
 {
+	(void)fromhost;
 	/* write to this special address signals to the sim that we wish to end the simulation */
 	tohost = 0x1 | (cv64a6_test_status << 1);
 

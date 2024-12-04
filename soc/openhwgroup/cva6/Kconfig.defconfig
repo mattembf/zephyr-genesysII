@@ -29,7 +29,7 @@ config NUM_IRQS
 	default 186
 	
 config RISCV_SOC_CONTEXT_SAVE
-	default y
+	default n
 
 endif # SOC_SERIES_CVA6
 

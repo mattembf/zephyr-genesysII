@@ -19,24 +19,24 @@
 		unsigned long mstatus;                                                             \
 		unsigned long sp;                                                                  \
 		unsigned long mepc;                                                                \
-		struct soc_esf soc_context;                                                        \
         _callee_saved_t *csf;                                                              \
+		unsigned long padding;															   \
 		unsigned long ra;                                                                  \
 		unsigned long t0;                                                                  \
 		unsigned long t1;                                                                  \
 		unsigned long t2;                                                                  \
-		unsigned long t3;																   \
-		unsigned long t4;                                                                  \
-		unsigned long t5;                                                                  \
-		unsigned long t6;                                                                  \
-		unsigned long a4;                                                                  \
-		unsigned long a0;                                                                  \
+		unsigned long a0;																   \
 		unsigned long a1;                                                                  \
 		unsigned long a2;                                                                  \
 		unsigned long a3;                                                                  \
+		unsigned long a4;                                                                  \
 		unsigned long a5;                                                                  \
 		unsigned long a6;                                                                  \
 		unsigned long a7;                                                                  \
+		unsigned long t3;                                                                  \
+		unsigned long t4;                                                                  \
+		unsigned long t5;                                                                  \
+		unsigned long t6;                                                                  \
 	} __aligned(16);
 
 
@@ -79,7 +79,8 @@
 
 
 #define SOC_ISR_SW_UNSTACKING			\
-	DO_CALLER_SAVED(lr);				
+	DO_CALLER_SAVED(lr);				\
+	addi sp, sp, __struct_arch_esf_SIZEOF;			
 
 #endif /* _ASMLANGUAGE */
 
