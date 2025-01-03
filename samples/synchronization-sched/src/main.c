@@ -34,13 +34,56 @@ struct k_thread *main_thread = NULL;
 
 void my_timer_handler(struct k_timer *dummy)
 {
-	ARG_UNUSED(dummy);
+	//ARG_UNUSED(dummy);
     //Find arch_esf and check its values;
-	printk("Timer handler Called\n");
-	printk("Current address:%lx\n", (unsigned long)main_thread);
 
+	uint64_t* sp = ((uint64_t*)dummy->user_data) - 16;
+	printf("Timer handler Called\n");
+	printf("Arch esf address:%lx\n", (unsigned long)sp);
+
+	printf("ra = %llx\n", sp[ 0]);
+	printf("t0 = %llx\n", sp[ 1]);
+	printf("t1 = %llx\n", sp[ 2]);
+	printf("t2 = %llx\n", sp[ 3]);
+	printf("a0 = %llx\n", sp[ 4]);
+	printf("a1 = %llx\n", sp[ 5]);
+	printf("a2 = %llx\n", sp[ 6]);
+	printf("a3 = %llx\n", sp[ 7]);
+	printf("a4 = %llx\n", sp[ 8]);
+	printf("a5 = %llx\n", sp[ 9]);
+	printf("a6 = %llx\n", sp[10]);
+	printf("a7 = %llx\n", sp[11]);
+	printf("t3 = %llx\n", sp[12]);
+	printf("t4 = %llx\n", sp[13]);
+	printf("t5 = %llx\n", sp[14]);
+	printf("t6 = %llx\n", sp[15]);
+	__asm__ volatile (
+					"li a0,  0xaaaaaa\n"
+					"li a1,  0xaaaaaa\n"
+					"li a2,  0xaaaaaa\n"
+					"li a3,  0xaaaaaa\n"
+					"li a4,  0xaaaaaa\n"
+					"li a5,  0xaaaaaa\n"
+					"li a6,  0xaaaaaa\n"
+					"li a7,  0xaaaaaa\n"
+					// "li s2,  0xaaaaaa\n"
+					// "li s3,  0xaaaaaa\n"
+					// "li s4,  0xaaaaaa\n"
+					// "li s5,  0xaaaaaa\n"
+					// "li s6,  0xaaaaaa\n"
+					// "li s7,  0xaaaaaa\n"
+					// "li s8,  0xaaaaaa\n"
+					// "li s9,  0xaaaaaa\n"
+					// "li s10, 0xaaaaaa\n"
+					// "li s11, 0xaaaaaa\n"
+					// "li t3,  0xaaaaaa\n"
+					// "li t4,  0xaaaaaa\n"
+					// "li t5,  0xaaaaaa\n"
+				: 
+				: 		
+				: "a0","a1","a2","a3","a4","a5","a6","a7");	
 	//struct arch_esf *esf_ptr =  (struct arch_esf *)main_thread->callee_saved.sp;
-	printk("CUrrent sp: %lx\n",main_thread->callee_saved.sp );
+	//printf("CUrrent sp: %lx\n",main_thread->callee_saved.sp );
 	end_loop = 1;
 
 }
@@ -50,11 +93,17 @@ K_TIMER_DEFINE(my_timer, my_timer_handler, NULL);
 int main(void)
 {
 	//Start a timer that will interrupt main thread, hopefully saving it's context
-	k_timer_start(&my_timer, K_SECONDS(2), K_NO_WAIT);
-	printk("Current pointer:%lx\n", (unsigned long)_current);
-	main_thread = _current;
+	k_timer_start(&my_timer, K_MSEC(100), K_NO_WAIT);
+	uint64_t sp;
+	__asm__("mv %0,sp\n"
+			: "=r" (sp));
+	printf("Current sp:%llx\n", (uint64_t)sp);
+	//main_thread = _current;
+	//void* user_data_addr = &(my_timer.user_data);
 	//unsigned long __wv = (unsigned long)(val);		
-	__asm__ goto ("li t0, 5\n"
+	__asm__ goto (
+					"sd sp, 0(%[user_data_addr])\n"
+					"li t0, 5\n"
 					"li t1,  6\n"
 					"li t2,  7\n"
 					"li a0,  10\n"
@@ -130,8 +179,8 @@ int main(void)
 					"bne t5,  t6, %l[fail]\n"
 					"j %l[pass]"
 				: 
-				: [end_loop] "r" (&end_loop)		
-				: "t0","t1","t2","a0","a1","a2","a3","a4","a5","a6","a7","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","t3","t4","t5","t6"
+				: [end_loop] "r" (&end_loop), [user_data_addr] "r" (&my_timer.user_data)	
+				: "t0","t1","t2","a0","a1","a2","a3","a4","a5","a6","a7","s2","s3","s4","s5","s6","s7","s8","s9","s10","s11","t3","t4","t5","t6","memory"
 				: fail, pass); //"memory" probably unneeded			
 
 
@@ -151,9 +200,9 @@ int main(void)
 // 				: "x3", "x4", "x5"
 // 				: infinite_loop); //"memory" probably unneeded			
 fail:
-	printk("Error encountered\n");
+	printf("Error encountered\n");
 	sys_poweroff();
 pass:
-	printk("Main successfully ended\n");
+	printf("Main successfully ended\n");
 	sys_poweroff();
 }
