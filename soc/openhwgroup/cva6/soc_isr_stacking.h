@@ -79,8 +79,10 @@
 
 
 #define SOC_ISR_SW_UNSTACKING			\
-	DO_CALLER_SAVED(lr);				\
-	addi sp, sp, __struct_arch_esf_SIZEOF;			
+	addi sp, sp, ESF_SW_SIZEOF;			\
+	csrw 0x7C9, sp;		                \
+	li t0, (0x1 << 26);                 \
+	csrs 0x7C7, t0;                        
 
 #endif /* _ASMLANGUAGE */
 
