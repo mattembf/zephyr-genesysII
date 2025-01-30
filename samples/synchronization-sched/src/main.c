@@ -93,7 +93,7 @@ K_TIMER_DEFINE(my_timer, my_timer_handler, NULL);
 int main(void)
 {
 	//Start a timer that will interrupt main thread, hopefully saving it's context
-	k_timer_start(&my_timer, K_MSEC(1), K_NO_WAIT);
+	k_timer_start(&my_timer, K_MSEC(1000), K_NO_WAIT);
 	uint64_t sp;
 	__asm__("mv %0,sp\n"
 			: "=r" (sp));
