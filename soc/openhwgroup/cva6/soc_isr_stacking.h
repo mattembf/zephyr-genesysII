@@ -53,36 +53,40 @@
  */
 #define ESF_SW_SIZEOF (__struct_arch_esf_SIZEOF - ESF_HW_SIZEOF)
 
-/*
- * VPR needs aligned(8) SP when doing HW stacking, if this condition is not fulfilled it will move
- * SP by additional 4 bytes when HW stacking is done. This will be indicated by LSB bit in stacked
- * MEPC. This bit needs to be saved and then restored because zephyr is managing MEPC and doesn't
- * know anything about this additional offset.
- */
-#define MEPC_SP_ALIGN_BIT_MASK (0x1UL)
+#ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_STACK
 
-#define STORE_SP_ALIGN_BIT_FROM_MEPC				\
-	addi t1, sp, __struct_arch_esf_soc_context_OFFSET;	\
-	lr t0, __struct_arch_esf_mepc_OFFSET(sp);		\
-	andi t0, t0, MEPC_SP_ALIGN_BIT_MASK;			\
-	sr t0, __soc_esf_t_sp_align_OFFSET(t1)
+	#define SOC_ISR_SW_STACKING			\
+		addi sp, sp, -ESF_SW_SIZEOF;	
 
-#define RESTORE_SP_ALIGN_BIT_TO_MEPC				\
-	addi t1, sp, __struct_arch_esf_soc_context_OFFSET;	\
-	lr t0, __soc_esf_t_sp_align_OFFSET(t1);			\
-	lr t1, __struct_arch_esf_mepc_OFFSET(sp);		\
-	or t2, t1, t0;						\
-	sr t2, __struct_arch_esf_mepc_OFFSET(sp)
+#else /*CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_STACK*/
 
-#define SOC_ISR_SW_STACKING			\
-	addi sp, sp, -ESF_SW_SIZEOF;	
+	#define SOC_ISR_SW_STACKING			                           \
+		/* Save caller-saved registers on current thread stack. */ \
+		addi sp, sp, -__struct_arch_esf_SIZEOF;					   \
+		DO_CALLER_SAVED(sr);
 
+
+#endif /*CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_STACK*/
+
+#ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
 
 #define SOC_ISR_SW_UNSTACKING			\
 	addi sp, sp, ESF_SW_SIZEOF;			\
 	csrw 0x7C9, sp;		                \
 	li t0, (0x1 << 26);                 \
-	csrs 0x7C7, t0;                        
+	csrs 0x7C7, t0;    
+
+#else /*CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK*/
+
+	/* Restore caller-saved registers from thread stack */
+	#define SOC_ISR_SW_UNSTACKING			    \
+		DO_CALLER_SAVED(lr);                    \
+		/* remove esf from the stack */         \
+		addi sp, sp, __struct_arch_esf_SIZEOF;
+		
+#endif /*CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK*/
+
+
 
 #endif /* _ASMLANGUAGE */
 

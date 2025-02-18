@@ -3,6 +3,9 @@
 
 zephyr_sources()
 
+zephyr_include_directories(.)
+zephyr_sources(soc.c)
+
 set(SOC_LINKER_SCRIPT ${ZEPHYR_BASE}/include/zephyr/arch/riscv/common/linker.ld CACHE INTERNAL "")
 
 zephyr_library_sources_ifdef(CONFIG_SOC_SERIES_CVA6_PROVIDE_TEST_POWEROFF soc_poweroff.c)

@@ -41,3 +41,13 @@ config SOC_SERIES_CVA6_PROVIDE_FPGA_POWEROFF
 	bool "Include methods for terminating a test on the FPGA"
 	depends on SOC_CV64A6
 	default n
+
+config SOC_SERIES_PROVIDE_HW_CONTEXT_STACK
+	bool "Activate hardware assisted context stacking on interrupt enter"
+	depends on SOC_CV64A6
+	default n
+
+config SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
+	bool "Activate hardware assisted context unstacking on interrupt exit"
+	depends on SOC_CV64A6
+	default n
