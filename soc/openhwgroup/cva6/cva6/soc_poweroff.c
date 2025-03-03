@@ -21,8 +21,8 @@
  * this is accomplished using a linker script
  */
 
-volatile uint64_t tohost;
-volatile uint64_t fromhost;
+static volatile uint64_t tohost;
+static volatile uint64_t fromhost;
 
 static int32_t cv64a6_test_status;
 
