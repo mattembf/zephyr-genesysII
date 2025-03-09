@@ -33,7 +33,7 @@ config SOC_SERIES_CVA6_PROVIDE_NONSTANDARD_CACHE_OPTIONS
 	default n
 choice 
 	prompt "Select poweroff driver"
-
+	default SOC_SERIES_CVA6_PROVIDE_FPGA_POWEROFF
 	config SOC_SERIES_CVA6_PROVIDE_TEST_POWEROFF
 		bool "Include methods for terminating a test in the CV64a6 test harness (hardware simulation)"
 		depends on SOC_CV64A6
