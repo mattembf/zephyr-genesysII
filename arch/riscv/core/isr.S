@@ -724,6 +724,12 @@ no_reschedule:
 fp_trap_exit:
 #endif
 
+#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
+	/*if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+		otherwise goes on */
+	SOC_ISR_HW_UNSTACKING
+#endif
+
 	/* Restore MEPC and MSTATUS registers */
 	lr t0, __struct_arch_esf_mepc_OFFSET(sp)
 	lr t2, __struct_arch_esf_mstatus_OFFSET(sp)
@@ -771,6 +777,8 @@ fp_trap_exit:
 	lr s0, __struct_arch_esf_s0_OFFSET(sp)
 
 #ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
+	/* if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK is not set, here we restore by SW the registers
+		otherwise we already did the restore of the register by HW */ 
 	SOC_ISR_SW_UNSTACKING
 #else
 	/* Restore caller-saved registers from thread stack */
