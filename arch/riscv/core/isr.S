@@ -685,15 +685,10 @@ check_reschedule:
 	call z_get_next_switch_handle
 	
 #ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
-	lr t2, 0(sp)       
-    beqz a0, 1f       
-    mv t2, a0
 	/*
-	 *	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
-	 *	otherwise goes on 
-	 */
- 
-1:
+ *	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+ *	otherwise goes on 
+ */
 	SOC_ISR_HW_UNSTACKING
 #endif 
 	lr a1, 0(sp)
