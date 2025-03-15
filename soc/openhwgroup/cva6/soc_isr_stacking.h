@@ -71,7 +71,8 @@
 #ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
 
 #define SOC_ISR_HW_UNSTACKING			\
-	addi t1, sp, ESF_SW_SIZEOF;			\
+	lr t3, _thread_offset_to_sp(t2);	\
+	addi t1, t3, ESF_SW_SIZEOF;			\
 	csrw 0x7C9, t1;		                \
 	li t0, (0x1 << 26);                 \
 	csrs 0x7C7, t0;
@@ -80,7 +81,10 @@
 	addi sp,sp, ESF_SW_SIZEOF;	    
 
 #else /*CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK*/
-	#define SOC_ISR_HW_UNSTACKING
+
+	#define SOC_ISR_HW_UNSTACKING	\
+	li t0,1;
+	
 	/* Restore caller-saved registers from thread stack */
 	#define SOC_ISR_SW_UNSTACKING			    \
 		DO_CALLER_SAVED(lr);                    \

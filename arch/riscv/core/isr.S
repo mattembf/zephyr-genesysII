@@ -683,6 +683,19 @@ check_reschedule:
 	sr a1, 0(sp)
 	mv a0, zero
 	call z_get_next_switch_handle
+	
+#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
+	lr t2, 0(sp)       
+    beqz a0, 1f       
+    mv t2, a0
+	/*
+	 *	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+	 *	otherwise goes on 
+	 */
+ 
+1:
+	SOC_ISR_HW_UNSTACKING
+#endif 
 	lr a1, 0(sp)
 	addi sp, sp, 16
 	beqz a0, no_reschedule
@@ -724,11 +737,6 @@ no_reschedule:
 fp_trap_exit:
 #endif
 
-#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
-	/*if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
-		otherwise goes on */
-	SOC_ISR_HW_UNSTACKING
-#endif
 
 	/* Restore MEPC and MSTATUS registers */
 	lr t0, __struct_arch_esf_mepc_OFFSET(sp)
@@ -777,8 +785,11 @@ fp_trap_exit:
 	lr s0, __struct_arch_esf_s0_OFFSET(sp)
 
 #ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
-	/* if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK is not set, here we restore by SW the registers
-		otherwise we already did the restore of the register by HW */ 
+	/* 
+	 *	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK is not set, 
+	 *	here we restore by SW the registers
+	 *	otherwise we already did the restore of the register by HW 
+	 */ 
 	SOC_ISR_SW_UNSTACKING
 #else
 	/* Restore caller-saved registers from thread stack */
