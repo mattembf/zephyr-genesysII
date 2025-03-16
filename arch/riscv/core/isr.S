@@ -66,6 +66,12 @@
 #endif
 	.endm
 
+	.macro get_current_ready_q_cache dst
+#ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
+	la \dst, _kernel + ___kernel_t_ready_q_OFFSET + ___ready_q_t_cache_OFFSET
+#endif	
+	.endm
+
 /* imports */
 GDATA(_sw_isr_table)
 #ifdef CONFIG_RISCV_SOC_EXCEPTION_FROM_IRQ
@@ -663,6 +669,14 @@ irq_done:
 	/* nested count is back to 0: Return to thread stack */
 	lr sp, 0(sp)
 
+#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
+	/*
+ 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+ 	*	otherwise goes on 
+ 	*/
+	SOC_ISR_HW_UNSTACKING
+#endif 
+
 #ifdef CONFIG_STACK_SENTINEL
 	call z_check_stack_sentinel
 #endif
@@ -683,14 +697,7 @@ check_reschedule:
 	sr a1, 0(sp)
 	mv a0, zero
 	call z_get_next_switch_handle
-	
-#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
-	/*
- 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
- 	*	otherwise goes on 
- 	*/
-	SOC_ISR_HW_UNSTACKING
-#endif 
+
 	lr a1, 0(sp)
 	addi sp, sp, 16
 	beqz a0, no_reschedule

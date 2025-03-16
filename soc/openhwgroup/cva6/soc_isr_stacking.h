@@ -76,14 +76,13 @@
  * the HW unstacking
 */
 #define SOC_ISR_HW_UNSTACKING			\
-	beqz a0, 1f;						\
-	lr t1, _thread_offset_to_sp(a0);	\
-	addi t1,t1,ESF_SW_SIZEOF;			\
-	j 2f;              					\
+	get_current_ready_q_cache t3;		\
+	lr t2, ___cpu_t_current_OFFSET(s0);	\			
+	beq	t3, t2,	1f;						\
+	lr t3, _thread_offset_to_sp(t3);	\
 1:										\
-	addi t1,sp,16+ESF_SW_SIZEOF;		\
-2:										\
-	csrw 0x7C9, t1;		                \
+	addi t3,t3,ESF_SW_SIZEOF;			\
+	csrw 0x7C9, t3;		                \
 	li t0, (0x1 << 26);                 \
 	csrs 0x7C7, t0;
 
