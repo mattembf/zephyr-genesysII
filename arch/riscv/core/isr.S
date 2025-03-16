@@ -66,11 +66,6 @@
 #endif
 	.endm
 
-	.macro get_current_ready_q_cache dst
-#ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
-	la \dst, _kernel + ___kernel_t_ready_q_OFFSET + ___ready_q_t_cache_OFFSET
-#endif	
-	.endm
 
 /* imports */
 GDATA(_sw_isr_table)
