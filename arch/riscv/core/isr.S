@@ -686,9 +686,9 @@ check_reschedule:
 	
 #ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
 	/*
- *	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
- *	otherwise goes on 
- */
+ 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+ 	*	otherwise goes on 
+ 	*/
 	SOC_ISR_HW_UNSTACKING
 #endif 
 	lr a1, 0(sp)
@@ -704,7 +704,6 @@ reschedule:
 	 */
 	call z_riscv_switch
 
-z_riscv_thread_start:
 might_have_rescheduled:
 	/* reload s0 with &_current_cpu as it might have changed or be unset */
 	get_current_cpu s0
@@ -731,7 +730,6 @@ no_reschedule:
 	sb t1, _thread_offset_to_exception_depth(t0)
 fp_trap_exit:
 #endif
-
 
 	/* Restore MEPC and MSTATUS registers */
 	lr t0, __struct_arch_esf_mepc_OFFSET(sp)
@@ -801,3 +799,13 @@ fp_trap_exit:
 #endif /* CONFIG_RISCV_SOC_HAS_ISR_STACKING */
 
 	mret
+
+z_riscv_thread_start:
+	/*	
+	*	if has HW context unstack set, when the thread start
+	*	the first time we have to unstack the context by software
+	*/
+#ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
+	DO_CALLER_SAVED(lr)
+#endif	
+	j might_have_rescheduled

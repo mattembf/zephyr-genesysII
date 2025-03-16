@@ -70,6 +70,11 @@
 
 #ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
 
+/* If a0==0 we already have the correct value in the sp
+ * otherwise we can reach it from _thread_offset_to_sp(a0).
+ * We write the value in the csr and set a bit for starting
+ * the HW unstacking
+*/
 #define SOC_ISR_HW_UNSTACKING			\
 	beqz a0, 1f;						\
 	lr t1, _thread_offset_to_sp(a0);	\
