@@ -87,6 +87,9 @@
 	beq	t3, t2,	1f;						\
 	lr t4, _thread_offset_to_sp(t3);	\
 1:										\
+	SOC_ISR_HW_START_UNSTACKING
+
+#define SOC_ISR_HW_START_UNSTACKING		\
 	addi t4,t4,ESF_SW_SIZEOF;			\
 	csrw 0x7C9, t4;		                \
 	li t0, (0x1 << 26);                 \

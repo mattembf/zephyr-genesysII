@@ -306,6 +306,14 @@ no_fp:	/* increment _current->arch.exception_depth */
 	jal ra, __soc_save_context
 #endif /* CONFIG_RISCV_SOC_CONTEXT_SAVE */
 
+#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
+	/*
+ 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+ 	*	otherwise goes on 
+ 	*/
+	SOC_ISR_HW_UNSTACKING
+#endif 	
+
 	/*
 	 * Check if exception is the result of an interrupt or not.
 	 * (SOC dependent). Following the RISC-V architecture spec, the MSB
@@ -664,14 +672,6 @@ irq_done:
 	/* nested count is back to 0: Return to thread stack */
 	lr sp, 0(sp)
 
-#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
-	/*
- 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
- 	*	otherwise goes on 
- 	*/
-	SOC_ISR_HW_UNSTACKING
-#endif 
-
 #ifdef CONFIG_STACK_SENTINEL
 	call z_check_stack_sentinel
 #endif
@@ -808,9 +808,7 @@ z_riscv_thread_start:
 	*	the first time we have to unstack the context by software
 	*/
 #ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
-	addi t1,sp,ESF_SW_SIZEOF
-	csrw 0x7C9, t1	                
-	li t0, (0x1 << 26)               
-	csrs 0x7C7, t0
+	mv t4,sp
+	SOC_ISR_HW_START_UNSTACKING
 #endif	
 	j might_have_rescheduled
