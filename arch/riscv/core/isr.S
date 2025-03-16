@@ -808,6 +808,9 @@ z_riscv_thread_start:
 	*	the first time we have to unstack the context by software
 	*/
 #ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
-	DO_CALLER_SAVED(lr)
+	addi t1,sp,ESF_SW_SIZEOF
+	csrw 0x7C9, t1	                
+	li t0, (0x1 << 26)               
+	csrs 0x7C7, t0
 #endif	
 	j might_have_rescheduled
