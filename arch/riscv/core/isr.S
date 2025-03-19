@@ -697,7 +697,7 @@ check_reschedule:
 
 	lr a1, 0(sp)
 	addi sp, sp, 16
-
+#ifdef CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK
 	csrr t0, 0x7C9
 	mv t1, sp
 	beqz a0, check
@@ -705,6 +705,7 @@ check_reschedule:
 check:	
 	addi t1,t1,ESF_SW_SIZEOF
 	bne t0,t1,error
+#endif	
 	beqz a0, no_reschedule
 
 reschedule:
