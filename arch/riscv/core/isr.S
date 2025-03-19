@@ -696,6 +696,14 @@ check_reschedule:
 
 	lr a1, 0(sp)
 	addi sp, sp, 16
+
+	csrr t0, 0x7C9
+	mv t1, sp
+	beqz a0, check
+	lr t1, _thread_offset_to_sp(a1)
+check:	
+	addi t1,t1,ESF_SW_SIZEOF
+	bne t0,t1,error
 	beqz a0, no_reschedule
 
 reschedule:
@@ -813,3 +821,25 @@ z_riscv_thread_start:
 	SOC_ISR_HW_START_UNSTACKING
 #endif	
 	j might_have_rescheduled
+
+error:
+	mv s0,t0
+	mv s1,t1
+	la a0, fault_msg
+	jal printf
+	la a0, csr_value
+	mv a1, s0
+	jal printf
+	la a0, sp_value
+	mv a1, s1
+	jal printf
+	j z_riscv_fatal_error
+
+
+.section .rodata
+fault_msg:
+	.string "Last HW SP different of the current SP!\n"
+csr_value:
+	.string "Last HW SP value: @%x\n"
+sp_value:
+	.string "Current SP value: @%x\n"		
