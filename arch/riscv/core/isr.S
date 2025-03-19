@@ -305,15 +305,7 @@ no_fp:	/* increment _current->arch.exception_depth */
 	addi a0, sp, __struct_arch_esf_soc_context_OFFSET
 	jal ra, __soc_save_context
 #endif /* CONFIG_RISCV_SOC_CONTEXT_SAVE */
-
-#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
-	/*
- 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
- 	*	otherwise goes on 
- 	*/
-	get_current_cpu s0
-	SOC_ISR_HW_UNSTACKING
-#endif 	
+	
 
 	/*
 	 * Check if exception is the result of an interrupt or not.
@@ -672,6 +664,15 @@ irq_done:
 
 	/* nested count is back to 0: Return to thread stack */
 	lr sp, 0(sp)
+
+#ifdef CONFIG_RISCV_SOC_HAS_ISR_STACKING
+	/*
+ 	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
+ 	*	otherwise goes on 
+ 	*/
+	get_current_cpu s0
+	SOC_ISR_HW_UNSTACKING
+#endif 
 
 #ifdef CONFIG_STACK_SENTINEL
 	call z_check_stack_sentinel
