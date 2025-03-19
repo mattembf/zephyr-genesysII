@@ -311,6 +311,7 @@ no_fp:	/* increment _current->arch.exception_depth */
  	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
  	*	otherwise goes on 
  	*/
+	get_current_cpu s0
 	SOC_ISR_HW_UNSTACKING
 #endif 	
 
