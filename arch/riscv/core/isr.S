@@ -670,7 +670,6 @@ irq_done:
  	*	if CONFIG_SOC_SERIES_PROVIDE_HW_CONTEXT_UNSTACK start the HW register restore
  	*	otherwise goes on 
  	*/
-	get_current_cpu s0
 	SOC_ISR_HW_UNSTACKING
 #endif 
 
@@ -701,11 +700,22 @@ check_reschedule:
 	csrr t0, 0x7C9
 	mv t1, sp
 	beqz a0, check
-	lr t1, _thread_offset_to_sp(a1)
+	lr t1, _thread_offset_to_sp(a0)
 check:	
 	addi t1,t1,ESF_SW_SIZEOF
-	bne t0,t1,error
+	beq t0,t1,1f
+	addi sp,sp,-32
+	sr a0,0(sp)
+	sr a1,16(sp)
+	mv a1,t0
+	mv a2,t1
+	la a0, fault_msg
+	jal printf
+	lr a0,0(sp)
+	lr a1,16(sp)
+	addi sp,sp,32
 #endif	
+1:
 	beqz a0, no_reschedule
 
 reschedule:
@@ -824,24 +834,7 @@ z_riscv_thread_start:
 #endif	
 	j might_have_rescheduled
 
-error:
-	mv s0,t0
-	mv s1,t1
-	la a0, fault_msg
-	jal printf
-	la a0, csr_value
-	mv a1, s0
-	jal printf
-	la a0, sp_value
-	mv a1, s1
-	jal printf
-	j z_riscv_fatal_error
-
 
 .section .rodata
 fault_msg:
-	.string "Last HW SP different of the current SP!\n"
-csr_value:
-	.string "Last HW SP value: @%x\n"
-sp_value:
-	.string "Current SP value: @%x\n"		
+	.string "Last HW SP different of the current SP!\nLast HW SP value: @%x\nCurrent SP value: @%x\n"	
