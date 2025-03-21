@@ -7,7 +7,7 @@
 
 /* Definizione delle priorità dei thread (valore minore = maggiore priorità) */
 #define THREAD1_PRIORITY 5
-#define THREAD2_PRIORITY 2
+#define THREAD2_PRIORITY 5
 #define NUM_LOOP 10
 
 /* Definizione delle strutture dati per i thread */
@@ -32,7 +32,8 @@ void thread1(void *arg1, void *arg2, void *arg3) {
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
 	printf("start t1\n");
-   	for(;;);
+   	while(end_loop){printf("eseguo t1\n");}
+	printf("finish t1\n");
 }
 
 void thread2(void *arg1,void *arg2, void *arg3){
@@ -40,9 +41,13 @@ void thread2(void *arg1,void *arg2, void *arg3){
 	ARG_UNUSED(arg2);
 	ARG_UNUSED(arg3);
 	printf("start t2\n");
+	while(end_loop){printf("eseguo t2\n");}
+	printf("finish t2\n");
+	/*
+	printf("start t2\n");
 	k_timer_start(&sleep_t2,K_MSEC(1000),K_NO_WAIT);
 	while(end_loop);
-	printf("end t2\n");
+	printf("end t2\n");*/
 }
 
 int main(void) {
@@ -53,9 +58,9 @@ int main(void) {
 		
 	k_tid_t t2 = k_thread_create(&thread2_data, thread2_stack, STACK_SIZE,
                                thread2, NULL, NULL, NULL,
-                               THREAD2_PRIORITY, 0, K_MSEC(1000));	
-
+                               THREAD2_PRIORITY, 0, K_NO_WAIT);	
+	k_timer_start(&sleep_t2,K_MSEC(15000),K_NO_WAIT);
 	k_thread_join(t1,K_FOREVER);
-	k_thread_join(t2,K_FOREVER);
+	printf("main finish\n");
 	z_sys_poweroff();
 }
